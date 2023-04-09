@@ -157,7 +157,6 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
       return;
     }
 
-    print(details.velocity.pixelsPerSecond.distance);
     if (details.velocity.pixelsPerSecond.distance < kViewportMinFlingVelocity) {
       return;
     }
@@ -402,8 +401,8 @@ class PanningFrictionSimulation {
     );
     _ySimulation = ClampedSimulation(
       FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy),
-      dxMin: -10000,
-      dxMax: 12000,
+      dxMin: -8000,
+      dxMax: 10000,
     );
   }
 
