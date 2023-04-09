@@ -1398,8 +1398,10 @@ class PanAndScaleVelocityTracker {
 
     final velocitySlice =
         _VelocitySlice(translation: details.focalPointDelta, dtInMillis: _clock.millis - _lastScaleTime);
+    // PageListViewportLogs.pagesListGesturesVelocity.finer(
+    //     "Velocity: ${velocitySlice.pixelsPerSecond} pixels/second (focal delta: ${details.focalPointDelta}) (dt: ${velocitySlice.seconds})");
     PageListViewportLogs.pagesListGesturesVelocity.finer(
-        "Velocity: ${velocitySlice.pixelsPerSecond} pixels/second (focal delta: ${details.focalPointDelta}) (dt: ${velocitySlice.seconds})");
+        "${velocitySlice.pixelsPerSecond.dx},${velocitySlice.pixelsPerSecond.dy},${details.focalPointDelta.dx},${details.focalPointDelta.dy}");
     _recentVelocity.add(velocitySlice);
     _lastScaleTime = _clock.millis;
   }
@@ -1453,6 +1455,14 @@ class PanAndScaleVelocityTracker {
       return;
     }
 
+    print(details.velocity.pixelsPerSecond.distance);
+    if (details.velocity.pixelsPerSecond.distance < kMinFlingVelocity) {
+      PageListViewportLogs.pagesListGestures
+          .fine("aborted pan fling since the end velocity did not exceed the min fling velocity");
+      _launchVelocity = Offset.zero;
+      _recentVelocity.clear();
+      return;
+    }
     PageListViewportLogs.pagesListGesturesVelocity
         .finer("Ending velocity: ${details.velocity.pixelsPerSecond} pixels per second");
     // _launchVelocity = details.velocity.pixelsPerSecond;

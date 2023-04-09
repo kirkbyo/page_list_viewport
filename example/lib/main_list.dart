@@ -49,8 +49,22 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    // return Scaffold(
+    //   body: Center(
+    //     child: InteractiveViewer(
+    //       child: Container(
+    //         width: 500,
+    //         height: 1000,
+    //         child: Image.asset(
+    //           "assets/test-image.jpeg",
+    //           fit: BoxFit.cover,
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
     return Scaffold(
-      body: PageListViewportGestures(
+      body: DeprecatedPageListViewportGestures(
         controller: _controller,
         child: PageListViewport(
           controller: _controller,
