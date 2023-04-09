@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/scheduler.dart';
@@ -56,6 +54,7 @@ class DeprecatedPageListViewportGestures extends StatefulWidget {
 
 class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListViewportGestures>
     with TickerProviderStateMixin {
+  static double kViewportMinFlingVelocity = 250;
   bool _isPanningEnabled = true;
   bool _isPanning = false;
   late DeprecatedPanAndScaleVelocityTracker _panAndScaleVelocityTracker;
@@ -65,23 +64,16 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
   late Ticker _ticker;
   PanningFrictionSimulation? _frictionSimulation;
 
-  Animation<Offset>? _animation;
-  late AnimationController _controller;
-
   @override
   void initState() {
     super.initState();
     _panAndScaleVelocityTracker = DeprecatedPanAndScaleVelocityTracker(clock: widget.clock);
     _ticker = createTicker(_onFrictionTick);
-    _controller = AnimationController(
-      vsync: this,
-    );
   }
 
   @override
   void dispose() {
     _ticker.dispose();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -164,6 +156,12 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
     if (!_isPanning) {
       return;
     }
+
+    print(details.velocity.pixelsPerSecond.distance);
+    if (details.velocity.pixelsPerSecond.distance < kViewportMinFlingVelocity) {
+      return;
+    }
+
     _panAndScaleVelocityTracker.onScaleEnd(details);
     if (details.pointerCount == 0) {
       _startMomentum();
@@ -177,44 +175,14 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
     final velocity = _panAndScaleVelocityTracker.velocity;
     PageListViewportLogs.pagesListGestures.fine("Starting momentum with velocity: $velocity");
 
-    _animation?.removeListener(_onAnimate);
-    _controller.reset();
-
     _frictionSimulation = PanningFrictionSimulation(
       position: widget.controller.origin,
       velocity: velocity,
     );
 
-    final tFinal = _frictionSimulation!.finalTime;
-    print("$tFinal $velocity");
-    final xFinal = _frictionSimulation!.finalX();
-    _animation = Tween<Offset>(
-      begin: widget.controller.origin,
-      end: Offset(xFinal.dx, xFinal.dy),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutExpo,
-    ));
-    // _controller.duration = Duration(milliseconds: (tFinal * 1000).round());
-    // _animation!.addListener(_onAnimate);
-    // _controller.forward();
-
     if (!_ticker.isTicking) {
       _ticker.start();
     }
-  }
-
-  void _onAnimate() {
-    if (!_controller.isAnimating) {
-      _animation?.removeListener(_onAnimate);
-      _animation = null;
-      _controller.reset();
-      return;
-    }
-    // Translate such that the resulting translation is _animation.value.
-    final originBeforeDelta = widget.controller.origin;
-    widget.controller.translate(_animation!.value - originBeforeDelta);
-    print("animating");
   }
 
   void _stopMomentum() {
@@ -230,7 +198,6 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
       return;
     }
 
-    final delta = elapsedTime - (lastDuration ?? Duration.zero);
     final secondsFraction = elapsedTime.inMilliseconds / 1000;
     final currentVelocity = _frictionSimulation!.dx(secondsFraction);
     final originBeforeDelta = widget.controller.origin;
@@ -247,7 +214,6 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
     // If the viewport hit a wall, or if the simulations are done, stop
     // ticking.
     if (originBeforeDelta == widget.controller.origin || _frictionSimulation!.isDone(secondsFraction)) {
-      print("ending ${widget.controller.origin}");
       _ticker.stop();
     }
   }
@@ -421,7 +387,8 @@ class DeprecatedPanAndScaleVelocityTracker {
 }
 
 class PanningFrictionSimulation {
-  static const kDrag = 0.153;
+  static const kVerticalDrag = 0.153;
+  static const kHorizontalDrag = 0.0153;
 
   PanningFrictionSimulation({
     required Offset position,
@@ -429,14 +396,14 @@ class PanningFrictionSimulation {
   })  : _position = position,
         _velocity = velocity {
     _xSimulation = ClampedSimulation(
-      FrictionSimulation(kDrag, _position.dx, _velocity.dx),
-      dxMin: -1000,
-      dxMax: 1000,
+      FrictionSimulation(kHorizontalDrag, _position.dx, _velocity.dx),
+      dxMin: -3000,
+      dxMax: 3000,
     );
     _ySimulation = ClampedSimulation(
-      FrictionSimulation(kDrag, _position.dy, _velocity.dy),
-      dxMin: -8000,
-      dxMax: 8000,
+      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy),
+      dxMin: -10000,
+      dxMax: 12000,
     );
   }
 
@@ -457,17 +424,6 @@ class PanningFrictionSimulation {
       _xSimulation.dx(time),
       _ySimulation.dx(time),
     );
-  }
-
-  Offset finalX() => Offset.zero;
-
-  double get finalTime => _getFinalTime(_velocity.distance, kDrag);
-
-  // Given a velocity and drag, calculate the time at which motion will come to
-// a stop, within the margin of effectivelyMotionless.
-  double _getFinalTime(double velocity, double drag) {
-    const double effectivelyMotionless = 10.0;
-    return math.log(effectivelyMotionless / velocity) / math.log(drag / 100);
   }
 
   bool isDone(double time) => _xSimulation.isDone(time) && _ySimulation.isDone(time);
