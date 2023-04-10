@@ -154,6 +154,7 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
   void _onScaleEnd(ScaleEndDetails details) {
     PageListViewportLogs.pagesListGestures.finer("onScaleEnd()");
     if (!_isPanning) {
+      print("aborted");
       return;
     }
 
@@ -399,7 +400,7 @@ class DeprecatedPanAndScaleVelocityTracker {
 
 class PanningFrictionSimulation {
   static const kVerticalDrag = 0.095;
-  static const kHorizontalDrag = 0.0153;
+  static const kHorizontalDrag = 0.0425;
 
   PanningFrictionSimulation({
     required Offset position,
@@ -412,9 +413,9 @@ class PanningFrictionSimulation {
       dxMax: 3000,
     );
     _ySimulation = ClampedSimulation(
-      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy, constantDeceleration: 0.5),
-      dxMin: -4000,
-      dxMax: 4000,
+      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy, constantDeceleration: 9.8),
+      dxMin: -3000,
+      dxMax: 3000,
     );
   }
 
