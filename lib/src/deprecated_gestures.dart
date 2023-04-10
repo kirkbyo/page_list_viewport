@@ -413,7 +413,7 @@ class PanningFrictionSimulation {
       dxMax: 3000,
     );
     _ySimulation = ClampedSimulation(
-      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy, constantDeceleration: 2.1),
+      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy, constantDeceleration: 2.35),
       dxMin: -2000,
       dxMax: 3000,
     );
