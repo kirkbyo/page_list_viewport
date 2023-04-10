@@ -399,7 +399,7 @@ class DeprecatedPanAndScaleVelocityTracker {
 }
 
 class PanningFrictionSimulation {
-  static const kVerticalDrag = 0.055;
+  static const kVerticalDrag = 0.095;
   static const kHorizontalDrag = 0.0425;
 
   PanningFrictionSimulation({
@@ -414,7 +414,7 @@ class PanningFrictionSimulation {
     );
     _ySimulation = ClampedSimulation(
       FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy, constantDeceleration: 9.8),
-      dxMin: -3000,
+      dxMin: -2500,
       dxMax: 3000,
     );
   }
