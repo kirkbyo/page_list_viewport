@@ -28,6 +28,7 @@ class DeprecatedPageListViewportGestures extends StatefulWidget {
     required this.child,
   }) : super(key: key);
   final PageListViewportController controller;
+
   // All of these methods were added because our client needs to
   // respond to them, and we internally respond to other gestures.
   // Flutter won't let gestures pass from parent to child, so we're
@@ -54,7 +55,6 @@ class DeprecatedPageListViewportGestures extends StatefulWidget {
 
 class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListViewportGestures>
     with TickerProviderStateMixin {
-  static double kViewportMinFlingVelocity = 250;
   bool _isPanningEnabled = true;
   bool _isPanning = false;
   late DeprecatedPanAndScaleVelocityTracker _panAndScaleVelocityTracker;
@@ -157,10 +157,6 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
       return;
     }
 
-    if (details.velocity.pixelsPerSecond.distance < kViewportMinFlingVelocity) {
-      return;
-    }
-
     _panAndScaleVelocityTracker.onScaleEnd(details);
     if (details.pointerCount == 0) {
       _startMomentum();
@@ -244,6 +240,9 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
 }
 
 class DeprecatedPanAndScaleVelocityTracker {
+  static double kViewportMinFlingVelocity = 500;
+  static double kViewportMinFlingDistance = 60;
+
   DeprecatedPanAndScaleVelocityTracker({
     required Clock clock,
   }) : _clock = clock;
@@ -260,6 +259,8 @@ class DeprecatedPanAndScaleVelocityTracker {
 
   Offset get velocity => _launchVelocity;
   Offset _launchVelocity = Offset.zero;
+  Offset _startPosition = Offset.zero;
+  Offset _lastFocalPosition = Offset.zero;
 
   void onScaleStart(ScaleStartDetails details) {
     PageListViewportLogs.pagesListGestures.fine(
@@ -303,6 +304,7 @@ class DeprecatedPanAndScaleVelocityTracker {
     }
 
     _previousPointerCount = details.pointerCount;
+    _startPosition = details.focalPoint;
   }
 
   void onScaleUpdate(ScaleUpdateDetails details) {
@@ -325,6 +327,8 @@ class DeprecatedPanAndScaleVelocityTracker {
 
       _isPossibleGestureContinuation = false;
     }
+
+    _lastFocalPosition = details.focalPoint;
   }
 
   void onScaleEnd(ScaleEndDetails details) {
@@ -365,6 +369,14 @@ class DeprecatedPanAndScaleVelocityTracker {
       return;
     }
 
+    final translationDistance = (_lastFocalPosition - _startPosition).distance;
+    if (translationDistance > kViewportMinFlingDistance &&
+        details.velocity.pixelsPerSecond.distance < kViewportMinFlingVelocity) {
+      // The user was readjusting the viewport by dragging it to the
+      // new position.
+      return;
+    }
+
     if (details.pointerCount > 0) {
       PageListViewportLogs.pagesListGestures
           .fine(" - the user removed a finger, but is still interacting. Storing velocity for later.");
@@ -400,9 +412,9 @@ class PanningFrictionSimulation {
       dxMax: 3000,
     );
     _ySimulation = ClampedSimulation(
-      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy),
+      FrictionSimulation(kVerticalDrag, _position.dy, _velocity.dy, constantDeceleration: 0.5),
       dxMin: -4000,
-      dxMax: 7000,
+      dxMax: 4000,
     );
   }
 
