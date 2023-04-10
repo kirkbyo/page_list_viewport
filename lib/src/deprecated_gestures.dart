@@ -158,6 +158,7 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
       return;
     }
 
+    print(details.velocity.pixelsPerSecond.distance);
     _panAndScaleVelocityTracker.onScaleEnd(details);
     if (details.pointerCount == 0) {
       _startMomentum();
@@ -241,7 +242,7 @@ class _DeprecatedPageListViewportGesturesState extends State<DeprecatedPageListV
 }
 
 class DeprecatedPanAndScaleVelocityTracker {
-  static double kViewportMinFlingVelocity = 500;
+  static double kViewportMinFlingVelocity = 600;
   static double kViewportMinFlingDistance = 60;
 
   DeprecatedPanAndScaleVelocityTracker({
