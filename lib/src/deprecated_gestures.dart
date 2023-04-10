@@ -399,7 +399,7 @@ class DeprecatedPanAndScaleVelocityTracker {
 }
 
 class PanningFrictionSimulation {
-  static const kVerticalDrag = 0.095;
+  static const kVerticalDrag = 0.055;
   static const kHorizontalDrag = 0.0425;
 
   PanningFrictionSimulation({
