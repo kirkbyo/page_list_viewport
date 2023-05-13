@@ -499,7 +499,6 @@ class PageListViewportController extends OrientationController {
     // Update velocity tracking.
     if (_velocityStopwatch.elapsedMilliseconds > 0) {
       _velocity = velocity;
-      print("_velocity $_velocity");
       _velocityStopwatch.reset();
       _velocityResetTimer?.cancel();
 

@@ -270,7 +270,6 @@ class _PageListViewportGesturesState extends State<PageListViewportGestures> wit
   }
 
   void _onFrictionTick(Duration elapsedTime) {
-    print(elapsedTime.inMilliseconds);
     if (elapsedTime == Duration.zero) {
       return;
     }
