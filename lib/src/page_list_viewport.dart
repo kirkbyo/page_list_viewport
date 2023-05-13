@@ -490,6 +490,33 @@ class PageListViewportController extends OrientationController {
     notifyListeners();
   }
 
+  void velocify(Offset desiredOrigin, Offset velocity) {
+    final newOrigin = _constrainOriginToViewportBounds(desiredOrigin);
+
+    _previousOrigin = _origin;
+    _origin = newOrigin;
+
+    // Update velocity tracking.
+    if (_velocityStopwatch.elapsedMilliseconds > 0) {
+      _velocity = velocity;
+      print("_velocity $_velocity");
+      _velocityStopwatch.reset();
+      _velocityResetTimer?.cancel();
+
+      if (_velocity.distance > 0) {
+        // When the user is panning, we won't know when the final translation comes in.
+        // Therefore, to eventually report a velocity of zero, we need to assume that the
+        // absence of a message across a couple of frames indicates that we're done moving.
+        _velocityResetTimer = Timer(const Duration(milliseconds: 32), () {
+          _velocity = Offset.zero;
+          print("reset");
+          notifyListeners();
+        });
+      }
+    }
+    notifyListeners();
+  }
+
   void translate(Offset deltaInScreenSpace) {
     PageListViewportLogs.pagesListController.fine("Translation requested for delta: $deltaInScreenSpace");
     final desiredOrigin = _origin + deltaInScreenSpace;
@@ -506,6 +533,7 @@ class PageListViewportController extends OrientationController {
     // Update velocity tracking.
     if (_velocityStopwatch.elapsedMilliseconds > 0) {
       _velocity = (newOrigin - _previousOrigin) / (_velocityStopwatch.elapsedMilliseconds / 1000);
+      print("_velocity $_velocity");
       _velocityStopwatch.reset();
       _velocityResetTimer?.cancel();
 
@@ -515,6 +543,7 @@ class PageListViewportController extends OrientationController {
         // absence of a message across a couple of frames indicates that we're done moving.
         _velocityResetTimer = Timer(const Duration(milliseconds: 32), () {
           _velocity = Offset.zero;
+          print("reset");
           notifyListeners();
         });
       }

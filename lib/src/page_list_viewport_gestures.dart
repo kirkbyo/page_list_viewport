@@ -270,6 +270,7 @@ class _PageListViewportGesturesState extends State<PageListViewportGestures> wit
   }
 
   void _onFrictionTick(Duration elapsedTime) {
+    print(elapsedTime.inMilliseconds);
     if (elapsedTime == Duration.zero) {
       return;
     }
@@ -283,7 +284,7 @@ class _PageListViewportGesturesState extends State<PageListViewportGestures> wit
     PageListViewportLogs.pagesListGestures.finest(
         "Friction tick. Time: ${elapsedTime.inMilliseconds}ms. Velocity: $currentVelocity. Movement: $translate");
 
-    widget.controller.translate(translate);
+    widget.controller.velocify(newOrigin, currentVelocity);
 
     PageListViewportLogs.pagesListGestures.finest("New origin: $newOrigin");
 
