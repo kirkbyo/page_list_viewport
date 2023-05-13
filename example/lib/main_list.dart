@@ -1,3 +1,4 @@
+import 'package:example/velocity_plotter.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:page_list_viewport/page_list_viewport.dart';
@@ -69,32 +70,52 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Widget _buildViewport() {
-    return PageListViewportGestures(
-      controller: _controller,
-      lockPanAxis: true,
-      child: PageListViewport(
-        controller: _controller,
-        pageCount: _pageCount,
-        naturalPageSize: _naturalPageSizeInInches * 72 * MediaQuery.of(context).devicePixelRatio,
-        pageLayoutCacheCount: 3,
-        pagePaintCacheCount: 3,
-        builder: (BuildContext context, int pageIndex) {
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: _buildPage(pageIndex),
-              ),
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.all(32),
-                  color: Colors.white,
-                  child: Text("Page: $pageIndex"),
-                ),
-              )
-            ],
-          );
-        },
-      ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: PageListViewportGestures(
+            controller: _controller,
+            lockPanAxis: true,
+            child: PageListViewport(
+              controller: _controller,
+              pageCount: _pageCount,
+              naturalPageSize: _naturalPageSizeInInches * 72 * MediaQuery.of(context).devicePixelRatio,
+              pageLayoutCacheCount: 3,
+              pagePaintCacheCount: 3,
+              builder: (BuildContext context, int pageIndex) {
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      child: _buildPage(pageIndex),
+                    ),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(32),
+                        color: Colors.white,
+                        child: Text("Page: $pageIndex"),
+                      ),
+                    )
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 300,
+          child: Container(
+            padding: EdgeInsets.all(16),
+            color: Colors.white,
+            child: VelocityPlotter(
+              controller: _controller,
+              max: Offset(6000, 6000),
+            ),
+          ),
+        )
+      ],
     );
   }
 
