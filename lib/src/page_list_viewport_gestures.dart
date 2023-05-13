@@ -283,7 +283,7 @@ class _PageListViewportGesturesState extends State<PageListViewportGestures> wit
     PageListViewportLogs.pagesListGestures.finest(
         "Friction tick. Time: ${elapsedTime.inMilliseconds}ms. Velocity: $currentVelocity. Movement: $translate");
 
-    widget.controller.translate(translate);
+    widget.controller.translate(translate, instantaneousVelocity: currentVelocity);
 
     PageListViewportLogs.pagesListGestures.finest("New origin: $newOrigin");
 

@@ -490,7 +490,7 @@ class PageListViewportController extends OrientationController {
     notifyListeners();
   }
 
-  void translate(Offset deltaInScreenSpace) {
+  void translate(Offset deltaInScreenSpace, {Offset? instantaneousVelocity}) {
     PageListViewportLogs.pagesListController.fine("Translation requested for delta: $deltaInScreenSpace");
     final desiredOrigin = _origin + deltaInScreenSpace;
     PageListViewportLogs.pagesListController.fine(
@@ -505,7 +505,8 @@ class PageListViewportController extends OrientationController {
 
     // Update velocity tracking.
     if (_velocityStopwatch.elapsedMilliseconds > 0) {
-      _velocity = (newOrigin - _previousOrigin) / (_velocityStopwatch.elapsedMilliseconds / 1000);
+      _velocity =
+          instantaneousVelocity ?? (newOrigin - _previousOrigin) / (_velocityStopwatch.elapsedMilliseconds / 1000);
       _velocityStopwatch.reset();
       _velocityResetTimer?.cancel();
 
