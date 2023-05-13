@@ -75,6 +75,7 @@ class _VelocityPlotterState extends State<VelocityPlotter> {
                 points: _instantaneousVelocities,
                 max: widget.max,
                 color: Colors.black,
+                paintZeroLine: true,
               ),
             ),
           ),
@@ -84,6 +85,7 @@ class _VelocityPlotterState extends State<VelocityPlotter> {
                 points: _instantaneousAcceleration,
                 max: widget.max,
                 color: Colors.red,
+                paintZeroLine: false,
               ),
             ),
           ),
@@ -94,10 +96,16 @@ class _VelocityPlotterState extends State<VelocityPlotter> {
 }
 
 class _PlotterPainter extends CustomPainter {
-  _PlotterPainter({required this.max, required this.points, required this.color});
+  _PlotterPainter({
+    required this.max,
+    required this.points,
+    required this.color,
+    required this.paintZeroLine,
+  });
   final Offset max;
   final Iterable<Offset> points;
   final Color color;
+  final bool paintZeroLine;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -106,12 +114,17 @@ class _PlotterPainter extends CustomPainter {
 
     final pointPainter = Paint()..color = color;
 
-    final zeroLine = size.height / 2 * scaleY;
-
     var timestep = 0;
     for (var point in points) {
       final plotPoint = Offset(timestep * scaleX, size.height - ((point.dy + max.dy) * scaleY));
       canvas.drawCircle(plotPoint, 1, pointPainter);
+      if (paintZeroLine && point == Offset.zero) {
+        canvas.drawLine(
+          Offset(timestep * scaleX, 0),
+          Offset(timestep * scaleX, size.height),
+          Paint()..color = Colors.orange,
+        );
+      }
       timestep += 1;
     }
   }
