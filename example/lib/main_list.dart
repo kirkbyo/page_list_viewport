@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:page_list_viewport/page_list_viewport.dart';
 
+import 'frame_time_plotter.dart';
+
 void main() {
   PageListViewportLogs.initLoggers(Level.ALL, {
     // PageListViewportLogs.pagesList,
@@ -101,20 +103,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
           ),
         ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 300,
-          child: Container(
-            padding: EdgeInsets.all(16),
-            color: Colors.white,
-            child: VelocityPlotter(
-              controller: _controller,
-              max: Offset(6000, 6000),
-            ),
-          ),
-        )
+        // Positioned(
+        //   left: 0,
+        //   right: 0,
+        //   bottom: 0,
+        //   height: 300,
+        //   child: Container(
+        //     padding: EdgeInsets.all(16),
+        //     color: Colors.white,
+        //     child: FrameTimePlotter(controller: _controller),
+        //   ),
+        // )
       ],
     );
   }

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Page List (release)" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="additionalArgs" value="--release" />
+    <option name="additionalArgs" value="--profile" />
     <option name="filePath" value="$PROJECT_DIR$/example/lib/main_list.dart" />
     <method v="2" />
   </configuration>
